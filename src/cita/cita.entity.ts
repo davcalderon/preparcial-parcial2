@@ -8,6 +8,12 @@ import {
 } from 'typeorm';
 import { User } from '../users/entities/users.entity';
 
+export enum CitaStatus {
+  pending = 'pending',
+  cancelled = 'cancelled',
+  done = 'done',
+}
+
 @Entity('citas')
 export class Cita {
   @PrimaryGeneratedColumn('uuid')
@@ -20,23 +26,26 @@ export class Cita {
   @JoinColumn({ name: 'id_user' })
   user!: User;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: false })
   id_doctor!: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'id_doctor' })
   doctor!: User;
 
-  @Column({ type: 'timestamp' })
-  date!: Date;
+  @Column({ type: 'timestamp', nullable: false })
+  datetime!: Date;
+
+  @Column({ type: 'text', nullable: false })
+  reason!: string;
 
   @Column({
     type: 'enum',
-    enum: ['pending', 'cancelled', 'done'],
-    default: 'pending',
+    enum: CitaStatus,
+    default: CitaStatus.pending,
   })
-  status!: string;
+  status!: CitaStatus;
 
-  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn({ type: 'timestamp' })
   created_at!: Date;
 }
